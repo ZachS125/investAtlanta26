@@ -1,14 +1,30 @@
 # Atlanta Food Providers Map
 
-Streamlit + Plotly app that maps all provider locations from `food_providers_final_cleaned.csv` using latitude/longitude.
+Interactive Streamlit + Plotly map for Atlanta food providers with food-access coverage views.
 
-## Files used
+## What this app does
+
+- Plots providers from `freshfoodproviders.csv` (lat/lon)
+- Shows a clear Atlanta city boundary
+- Optional MARTA routes overlay
+- Food-access masking with selectable distance and model:
+  - Euclidean distance
+  - Walk-network distance (precomputed)
+  - Drive-network distance (precomputed)
+- Distance selector from `0.1` to `1.0` miles in `0.1` increments
+
+## Core files
 
 - `app.py`
-- `food_providers_final_cleaned.csv`
+- `freshfoodproviders.csv`
+- `atlanta_city_limits.geojson`
+- `marta_routes_overlay.geojson`
+- `coverage_layers/` (precomputed walk/drive coverage GeoJSONs)
 - `requirements.txt`
+- `requirements-precompute.txt`
+- `scripts/precompute_network_coverage.py`
 
-## Run locally (venv)
+## Run locally
 
 ```bash
 python3 -m venv .venv
@@ -17,47 +33,56 @@ python3 -m venv .venv
 .venv/bin/python -m streamlit run app.py
 ```
 
-App URL: `http://localhost:8501`
-
-## Run on local network (share with same Wi-Fi)
+## Run on local network
 
 ```bash
 .venv/bin/python -m streamlit run app.py --server.address 0.0.0.0 --server.port 8502
 ```
 
-Then open from another device with:
+Open from another device on the same network:
 
-`http://<your-mac-local-ip>:8502`
+`http://<your-local-ip>:8502`
 
-Example:
+## Precompute network coverage layers (walk + drive)
 
-`http://10.44.255.5:8502`
+Use this when provider data changes or you want refreshed network coverage masks.
 
-## Deploy on Streamlit Community Cloud (easiest)
+Install precompute dependencies:
 
-1. Push this repo to GitHub.
+```bash
+.venv/bin/python -m pip install -r requirements-precompute.txt
+```
+
+Generate all distances (`0.1` to `1.0`) for both walk and drive:
+
+```bash
+.venv/bin/python scripts/precompute_network_coverage.py
+```
+
+Useful optional runs:
+
+```bash
+# only drive mode
+.venv/bin/python scripts/precompute_network_coverage.py --modes drive
+
+# single distance only
+.venv/bin/python scripts/precompute_network_coverage.py --distance-miles 0.5
+
+# custom list
+.venv/bin/python scripts/precompute_network_coverage.py --distances 0.2,0.4,0.8
+```
+
+Outputs are written to `coverage_layers/`.
+
+## Deploy (Streamlit Community Cloud)
+
+1. Push repo to GitHub.
 2. Go to [https://share.streamlit.io](https://share.streamlit.io).
-3. Click **New app**.
-4. Select repo: `ZachS125/investAtlanta26`.
-5. Set main file path: `app.py`.
-6. Click **Deploy**.
+3. Create a new app pointing to `app.py`.
+4. Ensure required data files remain in repo root (`freshfoodproviders.csv`, boundary/routes GeoJSON, `coverage_layers/`).
 
-Notes:
-- `requirements.txt` is auto-detected and installed.
-- Keep `food_providers_final_cleaned.csv` in repo root so the app can read it.
+## Notes
 
-## Deploy on Render
-
-1. Create a **Web Service** from this GitHub repo.
-2. Use:
-   - Build command: `pip install -r requirements.txt`
-   - Start command: `streamlit run app.py --server.address 0.0.0.0 --server.port $PORT`
-3. Deploy.
-
-## Troubleshooting
-
-- `streamlit: command not found`
-  - Use: `.venv/bin/python -m streamlit run app.py`
-- Blank map or no points
-  - Confirm `food_providers_final_cleaned.csv` exists in repo root.
-  - Confirm `latitude` and `longitude` columns are present and numeric.
+- Network mode layers are precomputed from OpenStreetMap roads (via OSMnx).
+- Euclidean mode is computed on the fly in the app.
+- If a network layer for a selected distance is missing, the app will show a message prompting precompute.

@@ -1,0 +1,5 @@
+osmnx==2.0.6
+geopandas==1.0.1
+networkx==3.4.2
+pyogrio==0.8.0
+pyproj==3.6.1

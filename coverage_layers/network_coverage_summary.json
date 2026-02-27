@@ -1,0 +1,99 @@
+{
+  "distances_miles": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    1.0
+  ],
+  "provider_count": 161,
+  "modes": {
+    "drive": {
+      "0.1": {
+        "coverage_path": "coverage_layers/drive_coverage_0.1mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_0.1mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 9240233.738053907,
+        "uncovered_area_sq_m": 344115906.3659809,
+        "coverage_ratio": 0.02614991700818714
+      },
+      "0.2": {
+        "coverage_path": "coverage_layers/drive_coverage_0.2mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_0.2mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 26612210.879503552,
+        "uncovered_area_sq_m": 326743929.2245327,
+        "coverage_ratio": 0.07531271671596895
+      },
+      "0.3": {
+        "coverage_path": "coverage_layers/drive_coverage_0.3mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_0.3mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 50847515.6583777,
+        "uncovered_area_sq_m": 302508624.44565845,
+        "coverage_ratio": 0.14389877488305977
+      },
+      "0.4": {
+        "coverage_path": "coverage_layers/drive_coverage_0.4mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_0.4mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 79015019.45389852,
+        "uncovered_area_sq_m": 274341120.650136,
+        "coverage_ratio": 0.22361297989794252
+      },
+      "0.5": {
+        "coverage_path": "coverage_layers/drive_coverage_0.5mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_0.5mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 108941667.8673213,
+        "uncovered_area_sq_m": 244414472.2367152,
+        "coverage_ratio": 0.3083055747531264
+      },
+      "0.6": {
+        "coverage_path": "coverage_layers/drive_coverage_0.6mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_0.6mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 140855069.63849005,
+        "uncovered_area_sq_m": 212501070.46554646,
+        "coverage_ratio": 0.39862069355019236
+      },
+      "0.7": {
+        "coverage_path": "coverage_layers/drive_coverage_0.7mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_0.7mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 167707489.82544273,
+        "uncovered_area_sq_m": 185648650.27859434,
+        "coverage_ratio": 0.47461320404978824
+      },
+      "0.8": {
+        "coverage_path": "coverage_layers/drive_coverage_0.8mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_0.8mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 191499653.7454954,
+        "uncovered_area_sq_m": 161856486.35854092,
+        "coverage_ratio": 0.5419451709233445
+      },
+      "0.9": {
+        "coverage_path": "coverage_layers/drive_coverage_0.9mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_0.9mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 213614200.49382132,
+        "uncovered_area_sq_m": 139741939.6102149,
+        "coverage_ratio": 0.6045294711192172
+      },
+      "1.0": {
+        "coverage_path": "coverage_layers/drive_coverage_1.0mi.geojson",
+        "uncovered_path": "coverage_layers/drive_uncovered_1.0mi.geojson",
+        "unique_origin_nodes": 152,
+        "covered_area_sq_m": 230578239.15943524,
+        "uncovered_area_sq_m": 122777900.94460104,
+        "coverage_ratio": 0.652537802488864
+      }
+    }
+  }
+}
