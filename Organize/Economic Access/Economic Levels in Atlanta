@@ -1,0 +1,129 @@
+import pandas as pd
+import geopandas as gpd
+import numpy as np
+
+# =====================================================================
+# PHASE 1: ESTABLISH ECONOMIC LEVEL ZONES (THE DEMAND SIDE)
+# =====================================================================
+print("Starting Phase 1: Economic Zone Classification...")
+
+# 1. Load the USDA LILA (Low Income, Low Access) Census Shapefile
+# We use the .shp instead of .dbf so we maintain the spatial geometry for mapping later.
+gdf_census = gpd.read_file('D:\LZY\Projects\investAtlanta26\Organize\Economic Access\lila_halfmi_census.shp')
+
+# 2. Clean and prep the economic columns
+# MdnFmlI = Median Family Income
+# PvrtyRt = Poverty Rate
+gdf_census['MdnFmlI'] = pd.to_numeric(gdf_census['MdnFmlI'], errors='coerce')
+gdf_census['PvrtyRt'] = pd.to_numeric(gdf_census['PvrtyRt'], errors='coerce')
+
+# Handle missing data: Unpopulated tracts (like the airport or large parks) 
+# often have 0 or NaN for income. We temporarily fill them with -1 to avoid math errors.
+gdf_census['MdnFmlI'] = gdf_census['MdnFmlI'].fillna(-1)
+gdf_census['PvrtyRt'] = gdf_census['PvrtyRt'].fillna(-1)
+
+# Ensure Poverty Rate is a decimal (e.g., 0.25 instead of 25.0) for easier math
+if gdf_census['PvrtyRt'].max() > 1.0:
+    gdf_census['PvrtyRt'] = gdf_census['PvrtyRt'] / 100.0
+
+# 3. Define the Zone Classification Logic
+def assign_economic_zone(row):
+    """
+    Categorizes census tracts into one of three economic zones based on 
+    federal poverty and income guidelines.
+    """
+    income = row['MdnFmlI']
+    poverty = row['PvrtyRt']
+    
+    # Catch unpopulated tracts
+    if income == -1:
+        return 'Unpopulated/No Data'
+        
+    # ZONE 1: Severe Economic Barrier
+    # Income below $35k OR more than 30% of the tract lives below the poverty line.
+    if income < 35000 or poverty > 0.30:
+        return 'Zone 1 (Severe Barrier)'
+        
+    # ZONE 2: Moderate Barrier
+    # Working class/middle-income. Making enough to avoid severe poverty, 
+    # but highly sensitive to grocery price gouging.
+    elif 35000 <= income <= 60000:
+        return 'Zone 2 (Moderate Barrier)'
+        
+    # ZONE 3: Economically Secure
+    # High income. Grocery prices rarely dictate their ability to eat fresh food.
+    else:
+        return 'Zone 3 (Economically Secure)'
+
+# Apply the logic to create a new column
+gdf_census['Economic_Zone'] = gdf_census.apply(assign_economic_zone, axis=1)
+
+print("Phase 1 Complete. Tract distribution by zone:")
+print(gdf_census['Economic_Zone'].value_counts())
+print("-" * 50)
+
+
+# =====================================================================
+# PHASE 2: FIND THE "AFFORDABLE PRICE" LINE (PUBLIC HEALTH MATH)
+# =====================================================================
+print("Starting Phase 2: Calculating Affordable Price Thresholds...")
+
+# --- THE CONSTANTS (Based on USDA 2024/2025 standards) ---
+# The Thrifty Food Plan (TFP) is the federal standard for a bare-minimum 
+# nutritious diet for a family of 4.
+USDA_MONTHLY_TFP_COST = 975.00 
+
+# The federally recommended maximum percentage of gross income a family 
+# should spend on groceries to remain financially stable.
+MAX_FOOD_SPEND_RATIO = 0.15 
+
+# The baseline national average cost of your team's specific "Market Basket"
+# (e.g., 1 loaf wheat bread, 1 dz eggs, 1lb bananas, 1lb apples, 1lb carrots, 1 gal milk)
+STANDARD_BASKET_COST = 15.00 
+
+
+# 4. Define the Dynamic Affordability Math
+def calculate_affordable_basket(row):
+    """
+    Calculates exactly how much a family in a specific census tract can 
+    afford to pay for our test basket without exceeding 15% of their income.
+    """
+    income = row['MdnFmlI']
+    
+    if income <= 0:
+        return np.nan # Ignore unpopulated tracts
+        
+    # Step A: Find the Monthly Gross Income for a family in this tract
+    monthly_income = income / 12.0
+    
+    # Step B: Calculate their Maximum Sustainable Food Budget (15% of income)
+    max_monthly_food_budget = monthly_income * MAX_FOOD_SPEND_RATIO
+    
+    # Step C: Calculate the Purchasing Power Ratio
+    # If their budget is $487, but the USDA says they NEED $975 to eat healthily, 
+    # their purchasing power is only 0.5 (50%).
+    purchasing_power_ratio = max_monthly_food_budget / USDA_MONTHLY_TFP_COST
+    
+    # Cap the ratio at 1.0. If a millionaire lives in Zone 3, we don't say their 
+    # "affordable basket" is $400. We just expect them to pay the standard $15.00.
+    if purchasing_power_ratio > 1.0:
+        purchasing_power_ratio = 1.0
+        
+    # Step D: Calculate the Tract-Specific Affordable Basket Price
+    # If purchasing power is 50%, the $15.00 basket must be priced at $7.50 
+    # for them to afford it without going into debt or skipping bills.
+    affordable_basket_price = STANDARD_BASKET_COST * purchasing_power_ratio
+    
+    # Return rounded to 2 decimal places (currency)
+    return round(affordable_basket_price, 2)
+
+# Apply the math to create the threshold column
+gdf_census['Max_Affordable_Basket_Price'] = gdf_census.apply(calculate_affordable_basket, axis=1)
+
+# 5. Export the enriched dataset for use in Phase 3 and Phase 4
+output_filename = 'enriched_economic_zones_2025.shp'
+gdf_census.to_file(output_filename)
+
+print(f"Phase 2 Complete. Data exported to {output_filename}")
+print("\nSample Output (Tract Data):")
+print(gdf_census[['Economic_Zone', 'MdnFmlI', 'Max_Affordable_Basket_Price']].head(10))
