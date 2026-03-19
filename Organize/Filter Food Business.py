@@ -2,7 +2,7 @@ import pandas as pd
 
 # 1. Load the Excel file into a pandas DataFrame
 # Note: If your file has multiple sheets, you can specify sheet_name='Sheet1'
-df = pd.read_excel('/content/Atlanta_Business_License_Records_2025.xlsx')
+df = pd.read_excel(r'D:\LZY\Projects\investAtlanta26\Organize\Atlanta_Business_License_Records_2025.xlsx')
 
 # 2. Export the DataFrame to a CSV file
 # index=False prevents pandas from writing row numbers into the CSV
@@ -14,7 +14,7 @@ import pandas as pd
 import re
 
 # 1. Load and Clean
-df = pd.read_csv('Atlanta_Business_License_Records_2025.xlsx - Sheet1.csv')
+df = pd.read_csv('Atlanta_Business_License_Records_2025.csv')
 
 # Create a combined, cleaned search string from both Name and DBA columns
 df['company_name_clean'] = df['company_name'].fillna('').str.lower()
@@ -105,9 +105,12 @@ df_final_keep = pd.concat([df_chain_keep, df_naics_keep, df_maybe_to_keep]).drop
 # Combine all 'Discards'
 df_final_discard = pd.concat([df_discard_base, df_maybe_to_discard]).drop_duplicates(subset=['license_number'])
 
-# Export for your team
-df_final_keep.to_csv('high_confidence_fresh_food.csv', index=False)
-df_requires_review.to_csv('manual_audit_required.csv', index=False)
+# Export for your team (Guarantees it saves to your specific project folder)
+df_final_keep.to_csv(r'D:\LZY\Projects\investAtlanta26\Organize\high_confidence_fresh_food.csv', index=False)
+df_requires_review.to_csv(r'D:\LZY\Projects\investAtlanta26\Organize\manual_audit_required.csv', index=False)
+
+# Optional: Add this line if you ALSO want to save the list of businesses that were filtered out/discarded
+df_final_discard.to_csv(r'D:\LZY\Projects\investAtlanta26\Organize\discarded_businesses.csv', index=False)
 
 # Print Summary
 print(f"Anchors Found (Publix/Kroger/Target etc.): {len(df_chain_keep)}")
